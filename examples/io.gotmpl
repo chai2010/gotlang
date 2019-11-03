@@ -1,0 +1,28 @@
+{{/* 狗头语 版权 @2019 柴树杉 */}}}
+
+{{template "main" .}}
+
+{{define "main"}}
+	{{range $i, $v := . }}
+		{{println $i $v}}
+	{{end}}
+{{end}}
+
+{{print "input string: "}}
+{{$s := readstring}}
+{{println "input:" $s}}
+
+{{$aa := (mkslice 1 2 3)}}
+{{range $i, $v := $aa }}
+	{{println $i $v}}
+{{end}}
+
+{{$m := (mkmap)}}
+{{mapset $m "a" 123}}}
+{{mapset $m "b" 456}}}
+{{mapset $m "c" (mkmap)}}}
+
+{{range $i, $v := $m }}
+	{{println $i $v}}
+{{end}}
+

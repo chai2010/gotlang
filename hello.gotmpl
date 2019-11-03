@@ -1,0 +1,9 @@
+{{/* 狗头语 版权 @2019 柴树杉 */}}}
+
+{{template "main" .}}
+
+{{define "main"}}
+	{{range $i, $v := . }}
+		{{println $i $v}}
+	{{end}}
+{{end}}
