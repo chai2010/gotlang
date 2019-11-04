@@ -1,8 +1,8 @@
-# 狗头语(Go Template Language)
+# 狗头语言(Go Template Language)
 
 ![](gotlang-logo.png)
 
-狗头语是“柴树杉(chai2010)”于2019年11月基于Go语言标准库`text/template`包定制的图灵完备的语言。
+狗头语言是“柴树杉(chai2010)”于2019年11月基于Go语言标准库`text/template`包定制的图灵完备的玩具语言。
 
 ## 安装
 
@@ -41,7 +41,7 @@ $ got hello.gotmpl aa bb cc
 
 ## 例子2：打印斐波那契数列
 
-创建`./examples/fib.gotmpl`程序，输出命令行参数：
+创建`./examples/fib.gotmpl`程序，输出斐波那契数列：
 
 ```
 {{/* 狗头语 版权 @2019 柴树杉 */}}}
@@ -50,7 +50,7 @@ $ got hello.gotmpl aa bb cc
 
 {{define "main"}}
 	{{range $_, $i := (xrange 10) }}
-		{{println $i ":" (template_call "fib" $i)}}
+		{{printf "%d: %d\n" $i (template_call "fib" $i)}}
 	{{end}}
 {{end}}}
 
@@ -74,17 +74,24 @@ $ got hello.gotmpl aa bb cc
 
 ```
 $ got ./examples/fib.gotmpl
-0 : 0
-1 : 1
-2 : 1
-3 : 2
-4 : 3
-5 : 5
-6 : 8
-7 : 13
-8 : 21
-9 : 34
+0: 0
+1: 1
+2: 1
+3: 2
+4: 3
+5: 5
+6: 8
+7: 13
+8: 21
+9: 34
 ```
+
+## 语法高亮（VS Code）
+
+安装 [gotemplate-syntax](https://marketplace.visualstudio.com/items?itemName=casualjim.gotemplate) 插件，效果如下：
+
+![](gotlang-logo-02.png)
+
 
 ## 版权
 

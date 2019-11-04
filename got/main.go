@@ -13,7 +13,7 @@ import (
 
 const usage = `
 Got is a tool for run got(Go template language) program.
-Usage: got progran.gotmpl [args...]
+Usage: got program.gotmpl [args...]
        got -h
 `
 
