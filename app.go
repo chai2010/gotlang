@@ -7,7 +7,8 @@ import (
 	"bytes"
 	"io"
 	"os"
-	"text/template"
+
+	template "github.com/chai2010/gotlang/compiler"
 )
 
 // 狗头语程序对象

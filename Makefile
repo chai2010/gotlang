@@ -7,7 +7,7 @@ help:
 	go run ./got/main.go -h
 
 dev:
-	go run ./got/main.go ./examples/04-prime.gotmpl
+	go run ./got/main.go ./examples/06-prime.gotmpl
 
 fib:
 	go run ./got/main.go ./examples/05-fib.gotmpl

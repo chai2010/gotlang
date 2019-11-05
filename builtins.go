@@ -4,7 +4,8 @@ package gotlang
 
 import (
 	"fmt"
-	"text/template"
+
+	template "github.com/chai2010/gotlang/compiler"
 )
 
 func (p *GotApp) builtinFuncMap() template.FuncMap {
