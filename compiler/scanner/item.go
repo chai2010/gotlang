@@ -1,4 +1,4 @@
-package sacnner
+package scanner
 
 import (
 	"fmt"
@@ -16,9 +16,9 @@ type Item struct {
 
 func (i Item) String() string {
 	switch {
-	case i.Typ == token.ItemEOF:
+	case i.Typ == token.TokenEOF:
 		return "EOF"
-	case i.Typ == token.ItemError:
+	case i.Typ == token.TokenError:
 		return i.Val
 	case i.Typ.IsKeyword():
 		return fmt.Sprintf("<%s>", i.Val)

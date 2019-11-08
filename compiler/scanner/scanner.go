@@ -1,4 +1,4 @@
-package sacnner
+package scanner
 
 type Scanner struct {
 	s string

@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package sacnner
+// +build ignore
+
+package scanner
 
 import (
 	"fmt"
@@ -576,19 +578,4 @@ Loop:
 	}
 	l.emit(token.ItemRawString)
 	return lexInsideAction
-}
-
-// isSpace reports whether r is a space character.
-func isSpace(r rune) bool {
-	return r == ' ' || r == '\t'
-}
-
-// isEndOfLine reports whether r is an end-of-line character.
-func isEndOfLine(r rune) bool {
-	return r == '\r' || r == '\n'
-}
-
-// isAlphaNumeric reports whether r is an alphabetic, digit, or underscore.
-func isAlphaNumeric(r rune) bool {
-	return r == '_' || unicode.IsLetter(r) || unicode.IsDigit(r)
 }

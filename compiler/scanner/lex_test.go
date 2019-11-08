@@ -4,7 +4,7 @@
 
 // +build ignore
 
-package sacnner
+package scanner
 
 import (
 	"fmt"
