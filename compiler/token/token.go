@@ -6,41 +6,48 @@ import "strconv"
 type Token int
 
 const (
-	TokenError        Token = iota // error occurred; value is text of error
-	TokenBool                      // boolean constant
-	TokenChar                      // printable ASCII character; grab bag for comma etc.
-	TokenCharConstant              // character constant
-	TokenComplex                   // complex constant (1+2i); imaginary is just a number
-	TokenAssign                    // equals ('=') introducing an assignment
-	TokenDeclare                   // colon-equals (':=') introducing a declaration
-	TokenEOF
-	TokenField      // alphanumeric identifier starting with '.'
-	TokenIdentifier // alphanumeric identifier not starting with '.'
-	TokenLeftDelim  // left action delimiter
-	TokenLeftParen  // '(' inside action
-	TokenNumber     // simple number, including imaginary
-	TokenPipe       // pipe symbol
-	TokenRawString  // raw quoted string (includes quotes)
-	TokenRightDelim // right action delimiter
-	TokenRightParen // ')' inside action
-	TokenSpace      // run of spaces separating arguments
-	TokenString     // quoted string (includes quotes)
-	TokenText       // plain text
-	TokenVariable   // variable starting with '$', such as '$' or  '$1' or '$hello'
+	// 特殊标记
+	TokenError Token = iota // 零值, 错误类型
+	TokenEOF                // 文件结尾
 
-	// Keywords appear after all the rest.
-	TokenKeyword_begin // used only to delimit the keywords
-	TokenBlock         // block keyword
-	TokenDot           // the cursor, spelled '.'
-	TokenDefine        // define keyword
-	TokenElse          // else keyword
-	TokenEnd           // end keyword
-	TokenIf            // if keyword
-	TokenNil           // the untyped nil constant, easiest to treat as a keyword
-	TokenRange         // range keyword
-	TokenTemplate      // template keyword
-	TokenWith          // with keyword
-	TokenKeyword_end   // used only to delimit the keywords
+	// 面值常量
+	TokenBool         // boolean constant
+	TokenChar         // printable ASCII character; grab bag for comma etc.
+	TokenCharConstant // character constant
+	TokenComplex      // complex constant (1+2i); imaginary is just a number
+	TokenNumber       // simple number, including imaginary
+	TokenString       // quoted string (includes quotes)
+	TokenRawString    // raw quoted string (includes quotes)
+	TokenText         // plain text
+
+	// 运算符
+	TokenAssign     // =
+	TokenDeclare    // :=
+	TokenLeftParen  // (
+	TokenRightParen // )
+	TokenPipe       // |
+	TokenLeftDelim  // {{
+	TokenRightDelim // }}
+	TokenSpace      // 空白分隔符, 类似其它语言的分号';'
+
+	// 标识符
+	TokenIdentifier // 标识符, 一般是内置的函数
+	TokenField      // 成员, 例如: .Field, .Field1.Field2
+	TokenVariable   // 变量, $开头, 例如: $, $x, $hello
+
+	// 关键字
+	TokenKeyword_begin // 关键字开始
+	TokenDot           // .
+	TokenBlock         // block
+	TokenDefine        // define
+	TokenElse          // else
+	TokenEnd           // end
+	TokenIf            // if
+	TokenNil           // nil
+	TokenRange         // range
+	TokenTemplate      // template
+	TokenWith          // with
+	TokenKeyword_end   // 关键字结束
 )
 
 var tokens = [...]string{

@@ -6,12 +6,12 @@ import (
 	"github.com/chai2010/gotlang/compiler/token"
 )
 
-// Item represents a token or text string returned from the scanner.
+// 一个词法元素
 type Item struct {
-	Typ  token.Token // The type of this item.
-	Pos  int         // The starting position, in bytes, of this item in the input string.
-	Val  string      // The value of this item.
-	Line int         // The line number at the start of this item.
+	Typ token.Token // 记号类型
+	Val string      // 字符串值
+	Pos int         // 开始位置
+	End int         // 结束位置
 }
 
 func (i Item) String() string {
