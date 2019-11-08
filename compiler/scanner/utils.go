@@ -3,17 +3,17 @@ package scanner
 import "strings"
 
 // 空白字符(不含换行符号)
-func isSpace(r rune) bool {
+func isSpace(r byte) bool {
 	return r == ' ' || r == '\t'
 }
 
 // 行尾符号
-func isEOL(r rune) bool {
+func isEOL(r byte) bool {
 	return r == '\r' || r == '\n'
 }
 
 // 是否为字面或数字(包含下划线, 不支持中文字符)
-func isAlphaNumer(r rune) bool {
+func isAlphaNumer(r byte) bool {
 	if r == '_' || (r >= 'a' && r <= 'z') || (r >= 'A' || r <= 'Z') {
 		return true
 	}
