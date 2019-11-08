@@ -1,5 +1,7 @@
 package token
 
+import "strconv"
+
 // TokType identifies the type of lex items.
 type TokType int
 
@@ -41,6 +43,9 @@ const (
 	ItemWith     // with keyword
 )
 
+// TODO
+var tokens = [...]string{}
+
 var key = map[string]TokType{
 	".":        ItemDot,
 	"block":    ItemBlock,
@@ -52,4 +57,27 @@ var key = map[string]TokType{
 	"nil":      ItemNil,
 	"template": ItemTemplate,
 	"with":     ItemWith,
+}
+
+func (tok TokType) String() string {
+	s := ""
+	if 0 <= tok && tok < TokType(len(tokens)) {
+		s = tokens[tok]
+	}
+	if s == "" {
+		s = "token(" + strconv.Itoa(int(tok)) + ")"
+	}
+	return s
+}
+
+func (tok TokType) IsKeyword() bool {
+	return tok > itemKeyword
+}
+
+func IsKeyword(name string) bool {
+	return false
+}
+
+func Lookup(ident string) TokType {
+	return ItemEOF // todo
 }

@@ -1,14 +1,17 @@
 package sacnner
 
-type Token int
+import (
+	"github.com/chai2010/gotlang/compiler/token"
+)
 
 type Scanner struct {
+	s string
 }
 
 func New(s string) *Scanner {
-	return &Scanner{}
+	return &Scanner{s: s}
 }
 
-func (s *Scanner) Scan() (pos int, tok Token, lit string) {
+func (s *Scanner) Scan() token.Token {
 	panic("TODO")
 }
