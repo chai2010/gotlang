@@ -10,7 +10,7 @@ import (
 )
 
 // Make the types prettyprint.
-var itemName = map[ItemType]string{
+var itemName = map[TokType]string{
 	ItemError:        "error",
 	ItemBool:         "bool",
 	ItemChar:         "char",
@@ -44,7 +44,7 @@ var itemName = map[ItemType]string{
 	ItemWith:     "with",
 }
 
-func (i ItemType) String() string {
+func (i TokType) String() string {
 	s := itemName[i]
 	if s == "" {
 		return fmt.Sprintf("item%d", int(i))
@@ -55,11 +55,11 @@ func (i ItemType) String() string {
 type lexTest struct {
 	name  string
 	input string
-	items []Item
+	items []Token
 }
 
-func mkItem(typ ItemType, text string) Item {
-	return Item{
+func mkItem(typ TokType, text string) Token {
+	return Token{
 		Typ: typ,
 		Val: text,
 	}
@@ -85,15 +85,15 @@ var (
 )
 
 var lexTests = []lexTest{
-	{"empty", "", []Item{tEOF}},
-	{"spaces", " \t\n", []Item{mkItem(ItemText, " \t\n"), tEOF}},
-	{"text", `now is the time`, []Item{mkItem(ItemText, "now is the time"), tEOF}},
-	{"text with comment", "hello-{{/* this is a comment */}}-world", []Item{
+	{"empty", "", []Token{tEOF}},
+	{"spaces", " \t\n", []Token{mkItem(ItemText, " \t\n"), tEOF}},
+	{"text", `now is the time`, []Token{mkItem(ItemText, "now is the time"), tEOF}},
+	{"text with comment", "hello-{{/* this is a comment */}}-world", []Token{
 		mkItem(ItemText, "hello-"),
 		mkItem(ItemText, "-world"),
 		tEOF,
 	}},
-	{"punctuation", "{{,@% }}", []Item{
+	{"punctuation", "{{,@% }}", []Token{
 		tLeft,
 		mkItem(ItemChar, ","),
 		mkItem(ItemChar, "@"),
@@ -102,7 +102,7 @@ var lexTests = []lexTest{
 		tRight,
 		tEOF,
 	}},
-	{"parens", "{{((3))}}", []Item{
+	{"parens", "{{((3))}}", []Token{
 		tLeft,
 		tLpar,
 		tLpar,
@@ -112,15 +112,15 @@ var lexTests = []lexTest{
 		tRight,
 		tEOF,
 	}},
-	{"empty action", `{{}}`, []Item{tLeft, tRight, tEOF}},
-	{"for", `{{for}}`, []Item{tLeft, tFor, tRight, tEOF}},
-	{"block", `{{block "foo" .}}`, []Item{
+	{"empty action", `{{}}`, []Token{tLeft, tRight, tEOF}},
+	{"for", `{{for}}`, []Token{tLeft, tFor, tRight, tEOF}},
+	{"block", `{{block "foo" .}}`, []Token{
 		tLeft, tBlock, tSpace, mkItem(ItemString, `"foo"`), tSpace, tDot, tRight, tEOF,
 	}},
-	{"quote", `{{"abc \n\t\" "}}`, []Item{tLeft, tQuote, tRight, tEOF}},
-	{"raw quote", "{{" + raw + "}}", []Item{tLeft, tRawQuote, tRight, tEOF}},
-	{"raw quote with newline", "{{" + rawNL + "}}", []Item{tLeft, tRawQuoteNL, tRight, tEOF}},
-	{"numbers", "{{1 02 0x14 0X14 -7.2i 1e3 1E3 +1.2e-4 4.2i 1+2i 1_2 0x1.e_fp4 0X1.E_FP4}}", []Item{
+	{"quote", `{{"abc \n\t\" "}}`, []Token{tLeft, tQuote, tRight, tEOF}},
+	{"raw quote", "{{" + raw + "}}", []Token{tLeft, tRawQuote, tRight, tEOF}},
+	{"raw quote with newline", "{{" + rawNL + "}}", []Token{tLeft, tRawQuoteNL, tRight, tEOF}},
+	{"numbers", "{{1 02 0x14 0X14 -7.2i 1e3 1E3 +1.2e-4 4.2i 1+2i 1_2 0x1.e_fp4 0X1.E_FP4}}", []Token{
 		tLeft,
 		mkItem(ItemNumber, "1"),
 		tSpace,
@@ -150,7 +150,7 @@ var lexTests = []lexTest{
 		tRight,
 		tEOF,
 	}},
-	{"characters", `{{'a' '\n' '\'' '\\' '\u00FF' '\xFF' '本'}}`, []Item{
+	{"characters", `{{'a' '\n' '\'' '\\' '\u00FF' '\xFF' '本'}}`, []Token{
 		tLeft,
 		mkItem(ItemCharConstant, `'a'`),
 		tSpace,
@@ -168,7 +168,7 @@ var lexTests = []lexTest{
 		tRight,
 		tEOF,
 	}},
-	{"bools", "{{true false}}", []Item{
+	{"bools", "{{true false}}", []Token{
 		tLeft,
 		mkItem(ItemBool, "true"),
 		tSpace,
@@ -176,19 +176,19 @@ var lexTests = []lexTest{
 		tRight,
 		tEOF,
 	}},
-	{"dot", "{{.}}", []Item{
+	{"dot", "{{.}}", []Token{
 		tLeft,
 		tDot,
 		tRight,
 		tEOF,
 	}},
-	{"nil", "{{nil}}", []Item{
+	{"nil", "{{nil}}", []Token{
 		tLeft,
 		mkItem(ItemNil, "nil"),
 		tRight,
 		tEOF,
 	}},
-	{"dots", "{{.x . .2 .x.y.z}}", []Item{
+	{"dots", "{{.x . .2 .x.y.z}}", []Token{
 		tLeft,
 		mkItem(ItemField, ".x"),
 		tSpace,
@@ -202,7 +202,7 @@ var lexTests = []lexTest{
 		tRight,
 		tEOF,
 	}},
-	{"keywords", "{{range if else end with}}", []Item{
+	{"keywords", "{{range if else end with}}", []Token{
 		tLeft,
 		mkItem(ItemRange, "range"),
 		tSpace,
@@ -216,7 +216,7 @@ var lexTests = []lexTest{
 		tRight,
 		tEOF,
 	}},
-	{"variables", "{{$c := printf $ $hello $23 $ $var.Field .Method}}", []Item{
+	{"variables", "{{$c := printf $ $hello $23 $ $var.Field .Method}}", []Token{
 		tLeft,
 		mkItem(ItemVariable, "$c"),
 		tSpace,
@@ -239,7 +239,7 @@ var lexTests = []lexTest{
 		tRight,
 		tEOF,
 	}},
-	{"variable invocation", "{{$x 23}}", []Item{
+	{"variable invocation", "{{$x 23}}", []Token{
 		tLeft,
 		mkItem(ItemVariable, "$x"),
 		tSpace,
@@ -247,7 +247,7 @@ var lexTests = []lexTest{
 		tRight,
 		tEOF,
 	}},
-	{"pipeline", `intro {{echo hi 1.2 |noargs|args 1 "hi"}} outro`, []Item{
+	{"pipeline", `intro {{echo hi 1.2 |noargs|args 1 "hi"}} outro`, []Token{
 		mkItem(ItemText, "intro "),
 		tLeft,
 		mkItem(ItemIdentifier, "echo"),
@@ -268,7 +268,7 @@ var lexTests = []lexTest{
 		mkItem(ItemText, " outro"),
 		tEOF,
 	}},
-	{"declaration", "{{$v := 3}}", []Item{
+	{"declaration", "{{$v := 3}}", []Token{
 		tLeft,
 		mkItem(ItemVariable, "$v"),
 		tSpace,
@@ -278,7 +278,7 @@ var lexTests = []lexTest{
 		tRight,
 		tEOF,
 	}},
-	{"2 declarations", "{{$v , $w := 3}}", []Item{
+	{"2 declarations", "{{$v , $w := 3}}", []Token{
 		tLeft,
 		mkItem(ItemVariable, "$v"),
 		tSpace,
@@ -292,7 +292,7 @@ var lexTests = []lexTest{
 		tRight,
 		tEOF,
 	}},
-	{"field of parenthesized expression", "{{(.X).Y}}", []Item{
+	{"field of parenthesized expression", "{{(.X).Y}}", []Token{
 		tLeft,
 		tLpar,
 		mkItem(ItemField, ".X"),
@@ -301,7 +301,7 @@ var lexTests = []lexTest{
 		tRight,
 		tEOF,
 	}},
-	{"trimming spaces before and after", "hello- {{- 3 -}} -world", []Item{
+	{"trimming spaces before and after", "hello- {{- 3 -}} -world", []Token{
 		mkItem(ItemText, "hello-"),
 		tLeft,
 		mkItem(ItemNumber, "3"),
@@ -309,49 +309,49 @@ var lexTests = []lexTest{
 		mkItem(ItemText, "-world"),
 		tEOF,
 	}},
-	{"trimming spaces before and after comment", "hello- {{- /* hello */ -}} -world", []Item{
+	{"trimming spaces before and after comment", "hello- {{- /* hello */ -}} -world", []Token{
 		mkItem(ItemText, "hello-"),
 		mkItem(ItemText, "-world"),
 		tEOF,
 	}},
 	// errors
-	{"badchar", "#{{\x01}}", []Item{
+	{"badchar", "#{{\x01}}", []Token{
 		mkItem(ItemText, "#"),
 		tLeft,
 		mkItem(ItemError, "unrecognized character in action: U+0001"),
 	}},
-	{"unclosed action", "{{\n}}", []Item{
+	{"unclosed action", "{{\n}}", []Token{
 		tLeft,
 		mkItem(ItemError, "unclosed action"),
 	}},
-	{"EOF in action", "{{range", []Item{
+	{"EOF in action", "{{range", []Token{
 		tLeft,
 		tRange,
 		mkItem(ItemError, "unclosed action"),
 	}},
-	{"unclosed quote", "{{\"\n\"}}", []Item{
+	{"unclosed quote", "{{\"\n\"}}", []Token{
 		tLeft,
 		mkItem(ItemError, "unterminated quoted string"),
 	}},
-	{"unclosed raw quote", "{{`xx}}", []Item{
+	{"unclosed raw quote", "{{`xx}}", []Token{
 		tLeft,
 		mkItem(ItemError, "unterminated raw quoted string"),
 	}},
-	{"unclosed char constant", "{{'\n}}", []Item{
+	{"unclosed char constant", "{{'\n}}", []Token{
 		tLeft,
 		mkItem(ItemError, "unterminated character constant"),
 	}},
-	{"bad number", "{{3k}}", []Item{
+	{"bad number", "{{3k}}", []Token{
 		tLeft,
 		mkItem(ItemError, `bad number syntax: "3k"`),
 	}},
-	{"unclosed paren", "{{(3}}", []Item{
+	{"unclosed paren", "{{(3}}", []Token{
 		tLeft,
 		tLpar,
 		mkItem(ItemNumber, "3"),
 		mkItem(ItemError, `unclosed left paren`),
 	}},
-	{"extra right paren", "{{3)}}", []Item{
+	{"extra right paren", "{{3)}}", []Token{
 		tLeft,
 		mkItem(ItemNumber, "3"),
 		tRpar,
@@ -361,7 +361,7 @@ var lexTests = []lexTest{
 	// Fixed bugs
 	// Many elements in an action blew the lookahead until
 	// we made lexInsideAction not loop.
-	{"long pipeline deadlock", "{{|||||}}", []Item{
+	{"long pipeline deadlock", "{{|||||}}", []Token{
 		tLeft,
 		tPipe,
 		tPipe,
@@ -371,24 +371,24 @@ var lexTests = []lexTest{
 		tRight,
 		tEOF,
 	}},
-	{"text with bad comment", "hello-{{/*/}}-world", []Item{
+	{"text with bad comment", "hello-{{/*/}}-world", []Token{
 		mkItem(ItemText, "hello-"),
 		mkItem(ItemError, `unclosed comment`),
 	}},
-	{"text with comment close separated from delim", "hello-{{/* */ }}-world", []Item{
+	{"text with comment close separated from delim", "hello-{{/* */ }}-world", []Token{
 		mkItem(ItemText, "hello-"),
 		mkItem(ItemError, `comment ends before closing delimiter`),
 	}},
 	// This one is an error that we can't catch because it breaks templates with
 	// minimized JavaScript. Should have fixed it before Go 1.1.
-	{"unmatched right delimiter", "hello-{.}}-world", []Item{
+	{"unmatched right delimiter", "hello-{.}}-world", []Token{
 		mkItem(ItemText, "hello-{.}}-world"),
 		tEOF,
 	}},
 }
 
 // collect gathers the emitted items into a slice.
-func collect(t *lexTest, left, right string) (items []Item) {
+func collect(t *lexTest, left, right string) (items []Token) {
 	l := lex(t.name, t.input, left, right)
 	for {
 		item := l.nextItem()
@@ -400,7 +400,7 @@ func collect(t *lexTest, left, right string) (items []Item) {
 	return
 }
 
-func equal(i1, i2 []Item, checkPos bool) bool {
+func equal(i1, i2 []Token, checkPos bool) bool {
 	if len(i1) != len(i2) {
 		return false
 	}
@@ -432,7 +432,7 @@ func TestLex(t *testing.T) {
 
 // Some easy cases from above, but with delimiters $$ and @@
 var lexDelimTests = []lexTest{
-	{"punctuation", "$$,@%{{}}@@", []Item{
+	{"punctuation", "$$,@%{{}}@@", []Token{
 		tLeftDelim,
 		mkItem(ItemChar, ","),
 		mkItem(ItemChar, "@"),
@@ -444,10 +444,10 @@ var lexDelimTests = []lexTest{
 		tRightDelim,
 		tEOF,
 	}},
-	{"empty action", `$$@@`, []Item{tLeftDelim, tRightDelim, tEOF}},
-	{"for", `$$for@@`, []Item{tLeftDelim, tFor, tRightDelim, tEOF}},
-	{"quote", `$$"abc \n\t\" "@@`, []Item{tLeftDelim, tQuote, tRightDelim, tEOF}},
-	{"raw quote", "$$" + raw + "@@", []Item{tLeftDelim, tRawQuote, tRightDelim, tEOF}},
+	{"empty action", `$$@@`, []Token{tLeftDelim, tRightDelim, tEOF}},
+	{"for", `$$for@@`, []Token{tLeftDelim, tFor, tRightDelim, tEOF}},
+	{"quote", `$$"abc \n\t\" "@@`, []Token{tLeftDelim, tQuote, tRightDelim, tEOF}},
+	{"raw quote", "$$" + raw + "@@", []Token{tLeftDelim, tRawQuote, tRightDelim, tEOF}},
 }
 
 var (
@@ -465,8 +465,8 @@ func TestDelims(t *testing.T) {
 }
 
 var lexPosTests = []lexTest{
-	{"empty", "", []Item{{ItemEOF, 0, "", 1}}},
-	{"punctuation", "{{,@%#}}", []Item{
+	{"empty", "", []Token{{ItemEOF, 0, "", 1}}},
+	{"punctuation", "{{,@%#}}", []Token{
 		{ItemLeftDelim, 0, "{{", 1},
 		{ItemChar, 2, ",", 1},
 		{ItemChar, 3, "@", 1},
@@ -475,7 +475,7 @@ var lexPosTests = []lexTest{
 		{ItemRightDelim, 6, "}}", 1},
 		{ItemEOF, 8, "", 1},
 	}},
-	{"sample", "0123{{hello}}xyz", []Item{
+	{"sample", "0123{{hello}}xyz", []Token{
 		{ItemText, 0, "0123", 1},
 		{ItemLeftDelim, 4, "{{", 1},
 		{ItemIdentifier, 6, "hello", 1},
@@ -483,7 +483,7 @@ var lexPosTests = []lexTest{
 		{ItemText, 13, "xyz", 1},
 		{ItemEOF, 16, "", 1},
 	}},
-	{"trimafter", "{{x -}}\n{{y}}", []Item{
+	{"trimafter", "{{x -}}\n{{y}}", []Token{
 		{ItemLeftDelim, 0, "{{", 1},
 		{ItemIdentifier, 2, "x", 1},
 		{ItemRightDelim, 5, "}}", 1},
@@ -492,7 +492,7 @@ var lexPosTests = []lexTest{
 		{ItemRightDelim, 11, "}}", 2},
 		{ItemEOF, 13, "", 2},
 	}},
-	{"trimbefore", "{{x}}\n{{- y}}", []Item{
+	{"trimbefore", "{{x}}\n{{- y}}", []Token{
 		{ItemLeftDelim, 0, "{{", 1},
 		{ItemIdentifier, 2, "x", 1},
 		{ItemRightDelim, 3, "}}", 1},

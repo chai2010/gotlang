@@ -1,16 +1,16 @@
 package token
 
-// ItemType identifies the type of lex items.
-type ItemType int
+// TokType identifies the type of lex items.
+type TokType int
 
 const (
-	ItemError        ItemType = iota // error occurred; value is text of error
-	ItemBool                         // boolean constant
-	ItemChar                         // printable ASCII character; grab bag for comma etc.
-	ItemCharConstant                 // character constant
-	ItemComplex                      // complex constant (1+2i); imaginary is just a number
-	ItemAssign                       // equals ('=') introducing an assignment
-	ItemDeclare                      // colon-equals (':=') introducing a declaration
+	ItemError        TokType = iota // error occurred; value is text of error
+	ItemBool                        // boolean constant
+	ItemChar                        // printable ASCII character; grab bag for comma etc.
+	ItemCharConstant                // character constant
+	ItemComplex                     // complex constant (1+2i); imaginary is just a number
+	ItemAssign                      // equals ('=') introducing an assignment
+	ItemDeclare                     // colon-equals (':=') introducing a declaration
 	ItemEOF
 	ItemField      // alphanumeric identifier starting with '.'
 	ItemIdentifier // alphanumeric identifier not starting with '.'
@@ -41,7 +41,7 @@ const (
 	ItemWith     // with keyword
 )
 
-var key = map[string]ItemType{
+var key = map[string]TokType{
 	".":        ItemDot,
 	"block":    ItemBlock,
 	"define":   ItemDefine,
