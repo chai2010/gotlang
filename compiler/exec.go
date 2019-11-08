@@ -12,7 +12,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/chai2010/gotlang/compiler/fmtsort"
+	"github.com/chai2010/gotlang/compiler/internal/fmtsort"
 	"github.com/chai2010/gotlang/compiler/parse"
 )
 

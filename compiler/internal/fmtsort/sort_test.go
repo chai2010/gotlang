@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chai2010/gotlang/compiler/fmtsort"
+	"github.com/chai2010/gotlang/compiler/internal/fmtsort"
 )
 
 var compareTests = [][]reflect.Value{
