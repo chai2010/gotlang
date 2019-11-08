@@ -25,7 +25,7 @@ const (
 	spaceChars      = " \t\r\n" // These are the space characters defined by Go itself.
 	leftTrimMarker  = "- "      // Attached to left delimiter, trims trailing spaces from preceding text.
 	rightTrimMarker = " -"      // Attached to right delimiter, trims leading spaces from following text.
-	trimMarkerLen   = Pos(len(leftTrimMarker))
+	trimMarkerLen   = len(leftTrimMarker)
 )
 
 // stateFn represents the state of the scanner as a function that returns the next state.
@@ -38,9 +38,9 @@ type lexer struct {
 	leftDelim      string    // start of action
 	rightDelim     string    // end of action
 	trimRightDelim string    // end of action with trim marker
-	pos            Pos       // current position in the input
-	start          Pos       // start position of this item
-	width          Pos       // width of last rune read from input
+	pos            int       // current position in the input
+	start          int       // start position of this item
+	width          int       // width of last rune read from input
 	items          chan Item // channel of scanned items
 	parenDepth     int       // nesting depth of ( ) exprs
 	line           int       // 1+number of newlines seen
@@ -54,7 +54,7 @@ func (l *lexer) next() rune {
 		return eof
 	}
 	r, w := utf8.DecodeRuneInString(l.input[l.pos:])
-	l.width = Pos(w)
+	l.width = w
 	l.pos += l.width
 	if r == '\n' {
 		l.line++
@@ -171,9 +171,9 @@ const (
 func lexText(l *lexer) stateFn {
 	l.width = 0
 	if x := strings.Index(l.input[l.pos:], l.leftDelim); x >= 0 {
-		ldn := Pos(len(l.leftDelim))
-		l.pos += Pos(x)
-		trimLength := Pos(0)
+		ldn := len(l.leftDelim)
+		l.pos += x
+		trimLength := 0
 		if strings.HasPrefix(l.input[l.pos+ldn:], leftTrimMarker) {
 			trimLength = rightTrimLength(l.input[l.start:l.pos])
 		}
@@ -186,7 +186,7 @@ func lexText(l *lexer) stateFn {
 		l.ignore()
 		return lexLeftDelim
 	}
-	l.pos = Pos(len(l.input))
+	l.pos = len(l.input)
 	// Correctly reached EOF.
 	if l.pos > l.start {
 		l.line += strings.Count(l.input[l.start:l.pos], "\n")
@@ -197,8 +197,8 @@ func lexText(l *lexer) stateFn {
 }
 
 // rightTrimLength returns the length of the spaces at the end of the string.
-func rightTrimLength(s string) Pos {
-	return Pos(len(s) - len(strings.TrimRight(s, spaceChars)))
+func rightTrimLength(s string) int {
+	return len(s) - len(strings.TrimRight(s, spaceChars))
 }
 
 // atRightDelim reports whether the lexer is at a right delimiter, possibly preceded by a trim marker.
@@ -213,15 +213,15 @@ func (l *lexer) atRightDelim() (delim, trimSpaces bool) {
 }
 
 // leftTrimLength returns the length of the spaces at the beginning of the string.
-func leftTrimLength(s string) Pos {
-	return Pos(len(s) - len(strings.TrimLeft(s, spaceChars)))
+func leftTrimLength(s string) int {
+	return len(s) - len(strings.TrimLeft(s, spaceChars))
 }
 
 // lexLeftDelim scans the left delimiter, which is known to be present, possibly with a trim marker.
 func lexLeftDelim(l *lexer) stateFn {
-	l.pos += Pos(len(l.leftDelim))
+	l.pos += len(l.leftDelim)
 	trimSpace := strings.HasPrefix(l.input[l.pos:], leftTrimMarker)
-	afterMarker := Pos(0)
+	afterMarker := 0
 	if trimSpace {
 		afterMarker = trimMarkerLen
 	}
@@ -239,12 +239,12 @@ func lexLeftDelim(l *lexer) stateFn {
 
 // lexComment scans a comment. The left comment marker is known to be present.
 func lexComment(l *lexer) stateFn {
-	l.pos += Pos(len(leftComment))
+	l.pos += len(leftComment)
 	i := strings.Index(l.input[l.pos:], rightComment)
 	if i < 0 {
 		return l.errorf("unclosed comment")
 	}
-	l.pos += Pos(i + len(rightComment))
+	l.pos += i + len(rightComment)
 	delim, trimSpace := l.atRightDelim()
 	if !delim {
 		return l.errorf("comment ends before closing delimiter")
@@ -252,7 +252,7 @@ func lexComment(l *lexer) stateFn {
 	if trimSpace {
 		l.pos += trimMarkerLen
 	}
-	l.pos += Pos(len(l.rightDelim))
+	l.pos += len(l.rightDelim)
 	if trimSpace {
 		l.pos += leftTrimLength(l.input[l.pos:])
 	}
@@ -267,7 +267,7 @@ func lexRightDelim(l *lexer) stateFn {
 		l.pos += trimMarkerLen
 		l.ignore()
 	}
-	l.pos += Pos(len(l.rightDelim))
+	l.pos += len(l.rightDelim)
 	l.emit(ItemRightDelim)
 	if trimSpace {
 		l.pos += leftTrimLength(l.input[l.pos:])
@@ -313,7 +313,7 @@ func lexInsideAction(l *lexer) stateFn {
 		return lexChar
 	case r == '.':
 		// special look-ahead for ".field" so we don't break l.backup().
-		if l.pos < Pos(len(l.input)) {
+		if l.pos < len(l.input) {
 			r := l.input[l.pos]
 			if r < '0' || '9' < r {
 				return lexField

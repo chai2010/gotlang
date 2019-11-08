@@ -60,8 +60,8 @@ type lexTest struct {
 
 func mkItem(typ ItemType, text string) Item {
 	return Item{
-		typ: typ,
-		val: text,
+		Typ: typ,
+		Val: text,
 	}
 }
 
@@ -393,7 +393,7 @@ func collect(t *lexTest, left, right string) (items []Item) {
 	for {
 		item := l.nextItem()
 		items = append(items, item)
-		if item.typ == ItemEOF || item.typ == ItemError {
+		if item.Typ == ItemEOF || item.Typ == ItemError {
 			break
 		}
 	}
@@ -405,16 +405,16 @@ func equal(i1, i2 []Item, checkPos bool) bool {
 		return false
 	}
 	for k := range i1 {
-		if i1[k].typ != i2[k].typ {
+		if i1[k].Typ != i2[k].Typ {
 			return false
 		}
-		if i1[k].val != i2[k].val {
+		if i1[k].Val != i2[k].Val {
 			return false
 		}
-		if checkPos && i1[k].pos != i2[k].pos {
+		if checkPos && i1[k].Pos != i2[k].Pos {
 			return false
 		}
-		if checkPos && i1[k].line != i2[k].line {
+		if checkPos && i1[k].Line != i2[k].Line {
 			return false
 		}
 	}
@@ -517,7 +517,7 @@ func TestPos(t *testing.T) {
 						i1 := items[i]
 						i2 := test.items[i]
 						t.Errorf("\t#%d: got {%v %d %q %d} expected {%v %d %q %d}",
-							i, i1.typ, i1.pos, i1.val, i1.line, i2.typ, i2.pos, i2.val, i2.line)
+							i, i1.Typ, i1.Pos, i1.Val, i1.Line, i2.Typ, i2.Pos, i2.Val, i2.Line)
 					}
 				}
 			}
