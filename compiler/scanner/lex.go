@@ -35,18 +35,18 @@ type stateFn func(*lexer) stateFn
 
 // lexer holds the state of the scanner.
 type lexer struct {
-	name           string           // the name of the input; used only for error reports
-	input          string           // the string being scanned
-	leftDelim      string           // start of action
-	rightDelim     string           // end of action
-	trimRightDelim string           // end of action with trim marker
-	pos            int              // current position in the input
-	start          int              // start position of this item
-	width          int              // width of last rune read from input
-	items          chan token.Token // channel of scanned items
-	parenDepth     int              // nesting depth of ( ) exprs
-	line           int              // 1+number of newlines seen
-	startLine      int              // start line of this item
+	name           string    // the name of the input; used only for error reports
+	input          string    // the string being scanned
+	leftDelim      string    // start of action
+	rightDelim     string    // end of action
+	trimRightDelim string    // end of action with trim marker
+	pos            int       // current position in the input
+	start          int       // start position of this item
+	width          int       // width of last rune read from input
+	items          chan Item // channel of scanned items
+	parenDepth     int       // nesting depth of ( ) exprs
+	line           int       // 1+number of newlines seen
+	startLine      int       // start line of this item
 }
 
 // next returns the next rune in the input.
@@ -81,8 +81,8 @@ func (l *lexer) backup() {
 }
 
 // emit passes an item back to the client.
-func (l *lexer) emit(t token.TokType) {
-	l.items <- token.Token{t, l.start, l.input[l.start:l.pos], l.startLine}
+func (l *lexer) emit(t token.Token) {
+	l.items <- Item{t, l.start, l.input[l.start:l.pos], l.startLine}
 	l.start = l.pos
 	l.startLine = l.line
 }
@@ -113,13 +113,13 @@ func (l *lexer) acceptRun(valid string) {
 // errorf returns an error token and terminates the scan by passing
 // back a nil pointer that will be the next state, terminating l.nextItem.
 func (l *lexer) errorf(format string, args ...interface{}) stateFn {
-	l.items <- token.Token{token.ItemError, l.start, fmt.Sprintf(format, args...), l.startLine}
+	l.items <- Item{token.ItemError, l.start, fmt.Sprintf(format, args...), l.startLine}
 	return nil
 }
 
 // nextItem returns the next item from the input.
 // Called by the parser, not in the lexing goroutine.
-func (l *lexer) nextItem() token.Token {
+func (l *lexer) nextItem() Item {
 	return <-l.items
 }
 
@@ -144,7 +144,7 @@ func lex(name, input, left, right string) *lexer {
 		leftDelim:      left,
 		rightDelim:     right,
 		trimRightDelim: rightTrimMarker + right,
-		items:          make(chan token.Token),
+		items:          make(chan Item),
 		line:           1,
 		startLine:      1,
 	}
@@ -419,7 +419,7 @@ func lexVariable(l *lexer) stateFn {
 
 // lexVariable scans a field or variable: [.$]Alphanumeric.
 // The . or $ has been scanned.
-func lexFieldOrVariable(l *lexer, typ token.TokType) stateFn {
+func lexFieldOrVariable(l *lexer, typ token.Token) stateFn {
 	if l.atTerminator() { // Nothing interesting follows -> "." or "$".
 		if typ == token.ItemVariable {
 			l.emit(token.ItemVariable)

@@ -8,10 +8,10 @@ import (
 
 // Item represents a token or text string returned from the scanner.
 type Item struct {
-	Typ  token.TokType // The type of this item.
-	Pos  int           // The starting position, in bytes, of this item in the input string.
-	Val  string        // The value of this item.
-	Line int           // The line number at the start of this item.
+	Typ  token.Token // The type of this item.
+	Pos  int         // The starting position, in bytes, of this item in the input string.
+	Val  string      // The value of this item.
+	Line int         // The line number at the start of this item.
 }
 
 func (i Item) String() string {
